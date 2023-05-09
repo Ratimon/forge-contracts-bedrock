@@ -1,18 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.15;
 
-// import {StdUtils} from "forge-std/StdUtils.sol";
-
-// import {StdUtils} from "./StdUtils.sol";
-
-
 import {DeployScript, Deployer} from "forge-deploy/DeployScript.sol";
 import {DefaultDeployerFunction} from "forge-deploy/DefaultDeployerFunction.sol";
 import {DeployerFunctions} from "generated/deployer/DeployerFunctions.g.sol";
 
-
 import {ProxyAdmin} from "src/universal/ProxyAdmin.sol";
-
 
 contract DeployProxyAdminScript is  DeployScript {
     using DeployerFunctions for Deployer;

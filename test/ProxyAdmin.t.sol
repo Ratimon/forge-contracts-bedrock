@@ -12,7 +12,7 @@ import { AddressManager } from "src/legacy/AddressManager.sol";
 import {DeployProxyAdminScript} from "script/01_DeployProxyAdmin.s.sol";
 
 contract ProxyAdmin_Test is Test {
-    address alice = address(64);
+    // address alice = address(64);
 
     Proxy proxy;
     L1ChugSplashProxy chugsplash;
@@ -64,8 +64,11 @@ contract ProxyAdmin_Test is Test {
         // implementation = new SimpleStorage();
     }
 
-    function test_one_succeeds() external {
+    function test_owner() external {
 
+        address deployer = vm.envAddress("DEPLOYER");
+
+        assertEq(admin.owner(), deployer);
     }
 
 
