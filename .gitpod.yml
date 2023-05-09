@@ -1,0 +1,29 @@
+image: gitpod/workspace-full
+
+tasks:
+  - name: Setup, Install & Run Node
+    init: |
+      curl -L https://foundry.paradigm.xyz | bash && source $HOME/.bashrc;
+      foundryup
+      pnpm install
+
+      # + install zellij in the /workspace/.cargo/bin as if installed through `cargo install`
+      curl --location https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz | tar -C /workspace/.cargo/bin -xz
+
+      # move foundry installtion in home for gitpod prebuild
+      mv $HOME/.foundry .foundry;
+    command: |
+      # move it back out
+      mv .foundry $HOME/.foundry;
+      # + export the foundry PATH
+      echo "export PATH=\"\$PATH:$HOME/.foundry/bin\"" >> ~/.bashrc;
+      # injet the PATH
+      source ~/.bashrc;
+
+      pnpm start
+
+# Ports to expose on workspace startup
+ports:
+  - port: 8545
+    name: RPC
+    description: NODE RPC
