@@ -34,8 +34,8 @@ contract ProxyAdmin_Test is Test {
         // // Deploy the standard proxy
         // proxy = new Proxy(address(admin));
 
-        // // Deploy the legacy L1ChugSplashProxy with the admin as the owner
-        // chugsplash = new L1ChugSplashProxy(address(admin));
+        // Deploy the legacy L1ChugSplashProxy with the admin as the owner
+        chugsplash = new L1ChugSplashProxy(address(admin));
 
         // // Deploy the legacy AddressManager
         addressManager = new DeployAddressManagerScript().deploy();
@@ -66,10 +66,11 @@ contract ProxyAdmin_Test is Test {
         // implementation = new SimpleStorage();
     }
 
+    
+
     function test_owner() external {
 
         address deployer = vm.envAddress("DEPLOYER");
-
         assertEq(admin.owner(), deployer);
     }
 
