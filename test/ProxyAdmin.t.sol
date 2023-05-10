@@ -9,7 +9,9 @@ import { L1ChugSplashProxy } from "src/legacy/L1ChugSplashProxy.sol";
 // import { ResolvedDelegateProxy } from "src/legacy/ResolvedDelegateProxy.sol";
 import { AddressManager } from "src/legacy/AddressManager.sol";
 
-import {DeployProxyAdminScript} from "script/01_DeployProxyAdmin.s.sol";
+import {DeployProxyAdminScript} from "script/000_DeployProxyAdmin.s.sol";
+import {DeployAddressManagerScript} from "script/001_DeployAddressManager.s.sol";
+
 
 contract ProxyAdmin_Test is Test {
     // address alice = address(64);
@@ -27,7 +29,6 @@ contract ProxyAdmin_Test is Test {
     function setUp() external {
         // // Deploy the proxy admin
         // admin = new ProxyAdmin(alice);
-
         admin = new DeployProxyAdminScript().deploy();
 
         // // Deploy the standard proxy
@@ -37,7 +38,8 @@ contract ProxyAdmin_Test is Test {
         // chugsplash = new L1ChugSplashProxy(address(admin));
 
         // // Deploy the legacy AddressManager
-        // addressManager = new AddressManager();
+        addressManager = new DeployAddressManagerScript().deploy();
+
         // // The proxy admin must be the new owner of the address manager
         // addressManager.transferOwnership(address(admin));
         // // Deploy a legacy ResolvedDelegateProxy with the name `a`.
