@@ -6,7 +6,7 @@ import { Proxy } from "src/universal/Proxy.sol";
 import { ProxyAdmin } from "src/universal/ProxyAdmin.sol";
 // import { SimpleStorage } from "./Proxy.t.sol";
 import { L1ChugSplashProxy } from "src/legacy/L1ChugSplashProxy.sol";
-// import { ResolvedDelegateProxy } from "src/legacy/ResolvedDelegateProxy.sol";
+import { ResolvedDelegateProxy } from "src/legacy/ResolvedDelegateProxy.sol";
 import { AddressManager } from "src/legacy/AddressManager.sol";
 
 import {DeployProxyAdminScript} from "script/000_DeployProxyAdmin.s.sol";
@@ -15,13 +15,13 @@ import {DeployAddressManagerScript} from "script/001_DeployAddressManager.s.sol"
 
 contract ProxyAdmin_Test is Test {
 
-    // string  mnemonic = vm.envString("MNEMONIC") ;
-    // uint256 ownerPrivateKey = vm.deriveKey(mnemonic, "m/44'/60'/0'/0/", 1); //  address = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-    // address owner = vm.envOr("DEPLOYER", vm.addr(ownerPrivateKey));
+    string  mnemonic = vm.envString("MNEMONIC") ;
+    uint256 ownerPrivateKey = vm.deriveKey(mnemonic, "m/44'/60'/0'/0/", 1); //  address = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+    address owner = vm.envOr("DEPLOYER", vm.addr(ownerPrivateKey));
 
     Proxy proxy;
     L1ChugSplashProxy chugsplash;
-    // ResolvedDelegateProxy resolved;
+    ResolvedDelegateProxy resolved;
 
     AddressManager addressManager;
 
@@ -37,7 +37,7 @@ contract ProxyAdmin_Test is Test {
         admin = new DeployProxyAdminScript().deploy();
 
         // // Deploy the standard proxy
-        // proxy = new Proxy(address(admin));
+        proxy = new Proxy(address(admin));
 
         // Deploy the legacy L1ChugSplashProxy with the admin as the owner
         chugsplash = new L1ChugSplashProxy(address(admin));
@@ -45,32 +45,34 @@ contract ProxyAdmin_Test is Test {
         // // Deploy the legacy AddressManager
         addressManager = new DeployAddressManagerScript().deploy();
         // vm.stopPrank(  );
-
     }
 
     modifier beforeEach() {
          // TODO : change to owner when broadcasting and pranks are compatible
-        vm.startPrank(tx.origin);
+        vm.startPrank(tx.origin, tx.origin);
 
         // The proxy admin must be the new owner of the address manager
         addressManager.transferOwnership(address(admin));
         // Deploy a legacy ResolvedDelegateProxy with the name `a`.
         // Whatever `a` is set to in AddressManager will be the address
         // that is used for the implementation.
-        // resolved = new ResolvedDelegateProxy(addressManager, "a");
+        resolved = new ResolvedDelegateProxy(addressManager, "a");
+        vm.stopPrank();
 
+        // Impersonate alice for setting up the admin.
+        vm.startPrank(owner);
         // Set the address of the address manager in the admin so that it
         // can resolve the implementation address of legacy
         // ResolvedDelegateProxy based proxies.
-        // admin.setAddressManager(addressManager);
+        admin.setAddressManager(addressManager);
         // Set the reverse lookup of the ResolvedDelegateProxy
         // proxy
-        // admin.setImplementationName(address(resolved), "a");
+        admin.setImplementationName(address(resolved), "a");
 
         // // Set the proxy types
-        // admin.setProxyType(address(proxy), ProxyAdmin.ProxyType.ERC1967);
-        // admin.setProxyType(address(chugsplash), ProxyAdmin.ProxyType.CHUGSPLASH);
-        // admin.setProxyType(address(resolved), ProxyAdmin.ProxyType.RESOLVED);
+        admin.setProxyType(address(proxy), ProxyAdmin.ProxyType.ERC1967);
+        admin.setProxyType(address(chugsplash), ProxyAdmin.ProxyType.CHUGSPLASH);
+        admin.setProxyType(address(resolved), ProxyAdmin.ProxyType.RESOLVED);
         vm.stopPrank();
 
         // implementation = new SimpleStorage();
@@ -78,53 +80,50 @@ contract ProxyAdmin_Test is Test {
     }
 
 
+    function test_setImplementationName_succeeds() external beforeEach {
+        vm.prank(owner);
+        admin.setImplementationName(address(1), "foo");
+        assertEq(admin.implementationName(address(1)), "foo");
+    }
 
-    // function test_owner() external beforeEach {
+    function test_setAddressManager_notOwner_reverts() external beforeEach {
+        // vm.startPrank(address(0));
+        vm.expectRevert("Ownable: caller is not the owner");
+        admin.setAddressManager(AddressManager((address(0))));
+        // vm.stopPrank();
+    }
 
-    //     address deployer = vm.envAddress("DEPLOYER");
-    //     assertEq(admin.owner(), deployer);
-    // }
+    function test_setImplementationName_notOwner_reverts() external beforeEach {
+        // vm.startPrank(address(0));
+        vm.expectRevert("Ownable: caller is not the owner");
+        admin.setImplementationName(address(0), "foo");
+        // vm.stopPrank();
+    }
 
-
-    // function test_setImplementationName_succeeds() external {
-    //     vm.prank(alice);
-    //     admin.setImplementationName(address(1), "foo");
-    //     assertEq(admin.implementationName(address(1)), "foo");
-    // }
-
-    // function test_setAddressManager_notOwner_reverts() external {
-    //     vm.expectRevert("Ownable: caller is not the owner");
-    //     admin.setAddressManager(AddressManager((address(0))));
-    // }
-
-    // function test_setImplementationName_notOwner_reverts() external {
-    //     vm.expectRevert("Ownable: caller is not the owner");
-    //     admin.setImplementationName(address(0), "foo");
-    // }
-
-    // function test_setProxyType_notOwner_reverts() external {
-    //     vm.expectRevert("Ownable: caller is not the owner");
-    //     admin.setProxyType(address(0), ProxyAdmin.ProxyType.CHUGSPLASH);
-    // }
+    function test_setProxyType_notOwner_reverts() external beforeEach {
+        // vm.prank(address(0));
+        vm.expectRevert("Ownable: caller is not the owner");
+        admin.setProxyType(address(0), ProxyAdmin.ProxyType.CHUGSPLASH);
+    }
 
     function test_owner_succeeds() external beforeEach {
-
         address deployer = vm.envAddress("DEPLOYER");
 
         assertEq(admin.owner(), deployer);
     }
 
-    // function test_proxyType_succeeds() external {
-    //     assertEq(uint256(admin.proxyType(address(proxy))), uint256(ProxyAdmin.ProxyType.ERC1967));
-    //     assertEq(
-    //         uint256(admin.proxyType(address(chugsplash))),
-    //         uint256(ProxyAdmin.ProxyType.CHUGSPLASH)
-    //     );
-    //     assertEq(
-    //         uint256(admin.proxyType(address(resolved))),
-    //         uint256(ProxyAdmin.ProxyType.RESOLVED)
-    //     );
-    // }
+    function test_proxyType_succeeds() external beforeEach {
+        // vm.prank(owner);
+        assertEq(uint256(admin.proxyType(address(proxy))), uint256(ProxyAdmin.ProxyType.ERC1967));
+        assertEq(
+            uint256(admin.proxyType(address(chugsplash))),
+            uint256(ProxyAdmin.ProxyType.CHUGSPLASH)
+        );
+        assertEq(
+            uint256(admin.proxyType(address(resolved))),
+            uint256(ProxyAdmin.ProxyType.RESOLVED)
+        );
+    }
 
     // function test_erc1967GetProxyImplementation_succeeds() external {
     //     getProxyImplementation(payable(proxy));
