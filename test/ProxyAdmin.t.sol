@@ -14,7 +14,10 @@ import {DeployAddressManagerScript} from "script/001_DeployAddressManager.s.sol"
 
 
 contract ProxyAdmin_Test is Test {
-    // address alice = address(64);
+
+    // string  mnemonic = vm.envString("MNEMONIC") ;
+    // uint256 ownerPrivateKey = vm.deriveKey(mnemonic, "m/44'/60'/0'/0/", 1); //  address = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+    // address owner = vm.envOr("DEPLOYER", vm.addr(ownerPrivateKey));
 
     Proxy proxy;
     L1ChugSplashProxy chugsplash;
@@ -27,8 +30,10 @@ contract ProxyAdmin_Test is Test {
     // SimpleStorage implementation;
 
     function setUp() external {
-        // // Deploy the proxy admin
-        // admin = new ProxyAdmin(alice);
+        // TODO : remove when broadcasting and pranks are compatible
+        // vm.startPrank(owner);
+
+        // Deploy the proxy admin
         admin = new DeployProxyAdminScript().deploy();
 
         // // Deploy the standard proxy
@@ -39,40 +44,46 @@ contract ProxyAdmin_Test is Test {
 
         // // Deploy the legacy AddressManager
         addressManager = new DeployAddressManagerScript().deploy();
+        // vm.stopPrank(  );
 
-        // // The proxy admin must be the new owner of the address manager
-        // addressManager.transferOwnership(address(admin));
-        // // Deploy a legacy ResolvedDelegateProxy with the name `a`.
-        // // Whatever `a` is set to in AddressManager will be the address
-        // // that is used for the implementation.
+    }
+
+    modifier beforeEach() {
+         // TODO : change to owner when broadcasting and pranks are compatible
+        vm.startPrank(tx.origin);
+
+        // The proxy admin must be the new owner of the address manager
+        addressManager.transferOwnership(address(admin));
+        // Deploy a legacy ResolvedDelegateProxy with the name `a`.
+        // Whatever `a` is set to in AddressManager will be the address
+        // that is used for the implementation.
         // resolved = new ResolvedDelegateProxy(addressManager, "a");
 
-        // // Impersonate alice for setting up the admin.
-        // vm.startPrank(alice);
-        // // Set the address of the address manager in the admin so that it
-        // // can resolve the implementation address of legacy
-        // // ResolvedDelegateProxy based proxies.
+        // Set the address of the address manager in the admin so that it
+        // can resolve the implementation address of legacy
+        // ResolvedDelegateProxy based proxies.
         // admin.setAddressManager(addressManager);
-        // // Set the reverse lookup of the ResolvedDelegateProxy
-        // // proxy
+        // Set the reverse lookup of the ResolvedDelegateProxy
+        // proxy
         // admin.setImplementationName(address(resolved), "a");
 
         // // Set the proxy types
         // admin.setProxyType(address(proxy), ProxyAdmin.ProxyType.ERC1967);
         // admin.setProxyType(address(chugsplash), ProxyAdmin.ProxyType.CHUGSPLASH);
         // admin.setProxyType(address(resolved), ProxyAdmin.ProxyType.RESOLVED);
-        // vm.stopPrank();
+        vm.stopPrank();
 
         // implementation = new SimpleStorage();
+        _;
     }
 
-    
 
-    function test_owner() external {
 
-        address deployer = vm.envAddress("DEPLOYER");
-        assertEq(admin.owner(), deployer);
-    }
+    // function test_owner() external beforeEach {
+
+    //     address deployer = vm.envAddress("DEPLOYER");
+    //     assertEq(admin.owner(), deployer);
+    // }
 
 
     // function test_setImplementationName_succeeds() external {
@@ -96,9 +107,12 @@ contract ProxyAdmin_Test is Test {
     //     admin.setProxyType(address(0), ProxyAdmin.ProxyType.CHUGSPLASH);
     // }
 
-    // function test_owner_succeeds() external {
-    //     assertEq(admin.owner(), alice);
-    // }
+    function test_owner_succeeds() external beforeEach {
+
+        address deployer = vm.envAddress("DEPLOYER");
+
+        assertEq(admin.owner(), deployer);
+    }
 
     // function test_proxyType_succeeds() external {
     //     assertEq(uint256(admin.proxyType(address(proxy))), uint256(ProxyAdmin.ProxyType.ERC1967));
