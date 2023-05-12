@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {console} from "forge-std/console.sol";
+
+
 import { Test } from "forge-std/Test.sol";
 import { Proxy } from "src/universal/Proxy.sol";
 import { ProxyAdmin } from "src/universal/ProxyAdmin.sol";
@@ -9,9 +12,9 @@ import { L1ChugSplashProxy } from "src/legacy/L1ChugSplashProxy.sol";
 import { ResolvedDelegateProxy } from "src/legacy/ResolvedDelegateProxy.sol";
 import { AddressManager } from "src/legacy/AddressManager.sol";
 
+import {Deployer, getDeployer} from "forge-deploy/Deployer.sol";
 import {DeployProxyAdminScript} from "script/000_DeployProxyAdmin.s.sol";
 import {DeployAddressManagerScript} from "script/001_DeployAddressManager.s.sol";
-
 
 contract ProxyAdmin_Test is Test {
 
@@ -19,23 +22,27 @@ contract ProxyAdmin_Test is Test {
     uint256 ownerPrivateKey = vm.deriveKey(mnemonic, "m/44'/60'/0'/0/", 1); //  address = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
     address owner = vm.envOr("DEPLOYER", vm.addr(ownerPrivateKey));
 
+    Deployer deployer;
+
     Proxy proxy;
     L1ChugSplashProxy chugsplash;
     ResolvedDelegateProxy resolved;
-
     AddressManager addressManager;
-
     ProxyAdmin admin;
-
     SimpleStorage implementation;
 
-    function setUp() external {
-        // TODO : remove when broadcasting and pranks are compatible
+    function setUp() external {       
+        deployer = getDeployer();
+        deployer.setAutoBroadcast(false);
+
+        DeployProxyAdminScript proxyAdminDeployments = new DeployProxyAdminScript();
+        DeployAddressManagerScript addressManagerDeployments = new DeployAddressManagerScript();
+
         // vm.startPrank(owner);
+        deployer.activatePrank(vm.envAddress("DEPLOYER"));
 
         // Deploy the proxy admin
-        admin = new DeployProxyAdminScript().deploy();
-
+        admin = proxyAdminDeployments.deploy();
         // // Deploy the standard proxy
         proxy = new Proxy(address(admin));
 
@@ -43,13 +50,11 @@ contract ProxyAdmin_Test is Test {
         chugsplash = new L1ChugSplashProxy(address(admin));
 
         // // Deploy the legacy AddressManager
-        addressManager = new DeployAddressManagerScript().deploy();
-        // vm.stopPrank(  );
+        addressManager = addressManagerDeployments.deploy();
     }
 
     modifier beforeEach() {
-         // TODO : change to owner when broadcasting and pranks are compatible
-        vm.startPrank(tx.origin, tx.origin);
+        vm.startPrank(owner);
 
         // The proxy admin must be the new owner of the address manager
         addressManager.transferOwnership(address(admin));
@@ -57,10 +62,7 @@ contract ProxyAdmin_Test is Test {
         // Whatever `a` is set to in AddressManager will be the address
         // that is used for the implementation.
         resolved = new ResolvedDelegateProxy(addressManager, "a");
-        vm.stopPrank();
 
-        // Impersonate alice for setting up the admin.
-        vm.startPrank(owner);
         // Set the address of the address manager in the admin so that it
         // can resolve the implementation address of legacy
         // ResolvedDelegateProxy based proxies.
@@ -81,6 +83,7 @@ contract ProxyAdmin_Test is Test {
 
 
     function test_setImplementationName_succeeds() external beforeEach {
+        // deployer.activatePrank(vm.envAddress("DEPLOYER"));
         vm.prank(owner);
         admin.setImplementationName(address(1), "foo");
         assertEq(admin.implementationName(address(1)), "foo");
@@ -125,34 +128,37 @@ contract ProxyAdmin_Test is Test {
         );
     }
 
-    // function test_erc1967GetProxyImplementation_succeeds() external {
-    //     // vm.prank(owner, owner);
-    //     getProxyImplementation(payable(proxy));
-    // }
+    function test_erc1967GetProxyImplementation_succeeds() external beforeEach {
+        // vm.prank(owner, owner);
+       
+        getProxyImplementation(payable(proxy));
+    }
 
-    // function test_chugsplashGetProxyImplementation_succeeds() external {
-    //     // vm.prank(owner, owner);
-    //     getProxyImplementation(payable(chugsplash));
-    // }
+    function test_chugsplashGetProxyImplementation_succeeds() external beforeEach {
+        //  deployer.activatePrank(vm.envAddress("DEPLOYER"));
+        // vm.prank(owner, owner);
+        getProxyImplementation(payable(chugsplash));
+    }
 
-    // function test_delegateResolvedGetProxyImplementation_succeeds() external {
-    //     getProxyImplementation(payable(resolved));
-    // }
+    function test_delegateResolvedGetProxyImplementation_succeeds() external beforeEach {
+        getProxyImplementation(payable(resolved));
+    }
 
-    // function getProxyImplementation(address payable _proxy) internal {
-    //     {
-    //         address impl = admin.getProxyImplementation(_proxy);
-    //         assertEq(impl, address(0));
-    //     }
+    function getProxyImplementation(address payable _proxy) internal {
+        // vm.prank(address(0));
+        {
+            address impl = admin.getProxyImplementation(_proxy);
+            assertEq(impl, address(0));
+        }
+        // deployer.activatePrank(vm.envAddress("DEPLOYER"));
+        vm.prank(owner, owner);
+        admin.upgrade(_proxy, address(implementation));
 
-    //     vm.prank(owner, owner);
-    //     admin.upgrade(_proxy, address(implementation));
-
-    //     {
-    //         address impl = admin.getProxyImplementation(_proxy);
-    //         assertEq(impl, address(implementation));
-    //     }
-    // }
+        {
+            address impl = admin.getProxyImplementation(_proxy);
+            assertEq(impl, address(implementation));
+        }
+    }
 
     // function test_erc1967GetProxyAdmin_succeeds() external {
     //     getProxyAdmin(payable(proxy));

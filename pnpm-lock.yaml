@@ -2,16 +2,16 @@ lockfileVersion: 5.3
 
 specifiers:
   as-soon: ^0.0.4
-  forge-deploy: 0.0.35
-  forge-deploy-proxy: ^0.0.2
-  ldenv: ^0.2.2
+  forge-deploy: 0.0.37
+  forge-deploy-proxy: ^0.0.3
+  ldenv: ^0.3.5
   set-defaults: ^0.0.1
 
 devDependencies:
   as-soon: 0.0.4
-  forge-deploy: 0.0.35
-  forge-deploy-proxy: 0.0.2_forge-deploy@0.0.35
-  ldenv: 0.2.2
+  forge-deploy: 0.0.37
+  forge-deploy-proxy: 0.0.3_forge-deploy@0.0.37
+  ldenv: 0.3.5
   set-defaults: 0.0.1
 
 packages:
@@ -104,16 +104,16 @@ packages:
         optional: true
     dev: true
 
-  /forge-deploy-proxy/0.0.2_forge-deploy@0.0.35:
-    resolution: {integrity: sha512-qB1/vzs2TY8F+1Yj8bD5xocoXzLuEVYU0D9OUSR/iDve3ONtC6KV9QERCyPxsnS9+5miC/4yUIqhclbo7VnDLg==}
+  /forge-deploy-proxy/0.0.3_forge-deploy@0.0.37:
+    resolution: {integrity: sha512-Be/RCNvRqTfsxqN9wGCJ0FWirOqKRnNPwr671nz9kpHtIKsqNZ6hI33RVWGVrQ0M35UxvlmNHHXMNa49oAvyMw==}
     peerDependencies:
       forge-deploy: ^0.0.35
     dependencies:
-      forge-deploy: 0.0.35
+      forge-deploy: 0.0.37
     dev: true
 
-  /forge-deploy/0.0.35:
-    resolution: {integrity: sha512-ozxMC+C+Omptx9C6jjvKdPEHxhC6d4zX2+CPJZpH8VbUjKzV2ab1JFC/+9EaVjUuEbfwStjHXwUZr+pDk9v9bg==}
+  /forge-deploy/0.0.37:
+    resolution: {integrity: sha512-QIA0rsAE5wqwgMH1HX0bgKmG/57hwbGMwi8ZpayidugLzbBIzYGbaHQ+gtSQcpd4gW8+p5AYA9sA4WajiJuA+w==}
     hasBin: true
     requiresBuild: true
     dependencies:
@@ -176,6 +176,14 @@ packages:
 
   /ldenv/0.2.2:
     resolution: {integrity: sha512-WsVOhnvQlsV6xmUaguq2J/JYza0XW30bj4okSxf+q4nFrnyMOYJEwVThpmikvXywll8TY3c03swgaL0SNVgCkg==}
+    hasBin: true
+    dependencies:
+      dotenv: 16.0.3
+      dotenv-expand: 10.0.0
+    dev: true
+
+  /ldenv/0.3.5:
+    resolution: {integrity: sha512-+mJ/nU6tdTxpDua8sJj06wc5sllPUPWAWkw1AMiQMCFvfdeyxQbzCOeft3HjDjGu9Y9a7v5GSndUyrYBm1Nw8Q==}
     hasBin: true
     dependencies:
       dotenv: 16.0.3

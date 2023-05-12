@@ -9,8 +9,6 @@ import {AddressManager} from "src/legacy/AddressManager.sol";
 contract DeployAddressManagerScript is  DeployScript {
     using DeployerFunctions for Deployer;
 
-    address owner;
-
     function deploy() external returns (AddressManager) {
 
         return AddressManager(
