@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import { Test } from "forge-std/Test.sol";
 import { Proxy } from "src/universal/Proxy.sol";
 import { ProxyAdmin } from "src/universal/ProxyAdmin.sol";
-// import { SimpleStorage } from "./Proxy.t.sol";
+import { SimpleStorage } from "./Proxy.t.sol";
 import { L1ChugSplashProxy } from "src/legacy/L1ChugSplashProxy.sol";
 import { ResolvedDelegateProxy } from "src/legacy/ResolvedDelegateProxy.sol";
 import { AddressManager } from "src/legacy/AddressManager.sol";
@@ -27,7 +27,7 @@ contract ProxyAdmin_Test is Test {
 
     ProxyAdmin admin;
 
-    // SimpleStorage implementation;
+    SimpleStorage implementation;
 
     function setUp() external {
         // TODO : remove when broadcasting and pranks are compatible
@@ -75,7 +75,7 @@ contract ProxyAdmin_Test is Test {
         admin.setProxyType(address(resolved), ProxyAdmin.ProxyType.RESOLVED);
         vm.stopPrank();
 
-        // implementation = new SimpleStorage();
+        implementation = new SimpleStorage();
         _;
     }
 
@@ -126,10 +126,12 @@ contract ProxyAdmin_Test is Test {
     }
 
     // function test_erc1967GetProxyImplementation_succeeds() external {
+    //     // vm.prank(owner, owner);
     //     getProxyImplementation(payable(proxy));
     // }
 
     // function test_chugsplashGetProxyImplementation_succeeds() external {
+    //     // vm.prank(owner, owner);
     //     getProxyImplementation(payable(chugsplash));
     // }
 
@@ -143,7 +145,7 @@ contract ProxyAdmin_Test is Test {
     //         assertEq(impl, address(0));
     //     }
 
-    //     vm.prank(alice);
+    //     vm.prank(owner, owner);
     //     admin.upgrade(_proxy, address(implementation));
 
     //     {
