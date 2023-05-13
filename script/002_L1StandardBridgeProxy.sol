@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity =0.8.15;
+pragma solidity ^0.8.0;
 
 import {DeployScript, Deployer} from "forge-deploy/DeployScript.sol";
-import {DeployerFunctions} from "generated/deployer/DeployerFunctions.g.sol";
+import {DeployerFunctions} from "@generated/deployer/DeployerFunctions.g.sol";
 
-import { L1ChugSplashProxy } from "src/legacy/L1ChugSplashProxy.sol";
+import { L1ChugSplashProxy } from "@main/legacy/L1ChugSplashProxy.sol";
 
 contract DeployL1StandardBridgeProxyScript is DeployScript {
     using DeployerFunctions for Deployer;
@@ -19,7 +19,7 @@ contract DeployL1StandardBridgeProxyScript is DeployScript {
 
         return L1ChugSplashProxy(
 			deployer.deploy_L1ChugSplashProxy(
-				"Proxy__OVM_L1StandardBridge",
+				"L1StandardBridgeProxy",
                 address(owner)
 			)
 		);

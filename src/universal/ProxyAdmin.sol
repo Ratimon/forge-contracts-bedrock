@@ -2,9 +2,9 @@
 pragma solidity 0.8.15;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Proxy } from "./Proxy.sol";
-import { AddressManager } from "../legacy/AddressManager.sol";
-import { L1ChugSplashProxy } from "../legacy/L1ChugSplashProxy.sol";
+import { Proxy } from "@main/universal/Proxy.sol";
+import { AddressManager } from "@main/legacy/AddressManager.sol";
+import { L1ChugSplashProxy } from "@main/legacy/L1ChugSplashProxy.sol";
 
 /**
  * @title IStaticERC1967Proxy

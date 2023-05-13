@@ -2,9 +2,9 @@
 pragma solidity =0.8.15;
 
 import {DeployScript, Deployer} from "forge-deploy/DeployScript.sol";
-import {DeployerFunctions} from "generated/deployer/DeployerFunctions.g.sol";
+import {DeployerFunctions} from "@generated/deployer/DeployerFunctions.g.sol";
 
-import {ProxyAdmin} from "src/universal/ProxyAdmin.sol";
+import {ProxyAdmin} from "@main/universal/ProxyAdmin.sol";
 
 contract DeployProxyAdminScript is  DeployScript {
     using DeployerFunctions for Deployer;

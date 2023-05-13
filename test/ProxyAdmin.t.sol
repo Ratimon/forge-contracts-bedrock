@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {console} from "forge-std/console.sol";
+import {console} from "@forge-std/console.sol";
 
-
-import { Test } from "forge-std/Test.sol";
-import { Proxy } from "src/universal/Proxy.sol";
-import { ProxyAdmin } from "src/universal/ProxyAdmin.sol";
+import { Test } from "@forge-std/Test.sol";
+import { Proxy } from "@main/universal/Proxy.sol";
+import { ProxyAdmin } from "@main/universal/ProxyAdmin.sol";
 import { SimpleStorage } from "./Proxy.t.sol";
-import { L1ChugSplashProxy } from "src/legacy/L1ChugSplashProxy.sol";
-import { ResolvedDelegateProxy } from "src/legacy/ResolvedDelegateProxy.sol";
-import { AddressManager } from "src/legacy/AddressManager.sol";
+import { L1ChugSplashProxy } from "@main/legacy/L1ChugSplashProxy.sol";
+import { ResolvedDelegateProxy } from "@main/legacy/ResolvedDelegateProxy.sol";
+import { AddressManager } from "@main/legacy/AddressManager.sol";
 
 import {Deployer, getDeployer} from "forge-deploy/Deployer.sol";
-import {DeployProxyAdminScript} from "script/000_DeployProxyAdmin.s.sol";
-import {DeployAddressManagerScript} from "script/001_DeployAddressManager.s.sol";
+import {DeployProxyAdminScript} from "@script/000_DeployProxyAdmin.s.sol";
+import {DeployAddressManagerScript} from "@script/001_DeployAddressManager.s.sol";
 
 contract ProxyAdmin_Test is Test {
 
