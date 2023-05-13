@@ -212,6 +212,7 @@ contract ProxyAdmin_Test is Test {
         // Call the proxy contract directly to get the admin.
         // Different proxy types have different interfaces.
         vm.prank(address(128));
+        // vm.changePrank(address(128));
         if (proxyType == ProxyAdmin.ProxyType.ERC1967) {
             assertEq(Proxy(payable(_proxy)).admin(), address(128));
         } else if (proxyType == ProxyAdmin.ProxyType.CHUGSPLASH) {
