@@ -27,7 +27,7 @@ contract Proxy_Test is Test {
     event Upgraded(address indexed implementation);
     event AdminChanged(address previousAdmin, address newAdmin);
 
-    address alice = address(64);
+    address alice = makeAddr('Alice');
 
     bytes32 internal constant IMPLEMENTATION_KEY =
         bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);

@@ -11,11 +11,8 @@ contract CommonTest is Test {
 
 
     address alice = makeAddr('Alice');
-    // address alice = address(128);
     address bob = makeAddr('Alice');
-    // address bob = address(256);
     address multisig = makeAddr('Multisig');
-    //  address multisig = address(512);
 
     address immutable ZERO_ADDRESS = address(0);
     address immutable NON_ZERO_ADDRESS = address(1);
