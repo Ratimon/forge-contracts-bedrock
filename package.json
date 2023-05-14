@@ -21,6 +21,8 @@
     "start:wezterm": "wezterm --config-file wezterm.lua",
     "gen-deployer": "forge-deploy gen-deployer --templates node_modules/forge-deploy-proxy/templates",
     "compile": "pnpm gen-deployer && forge build",
+    "build:differential": "go build -o ./test/differential-testing/differential-testing ./test/differential-testing",
+    "build:fuzz": "(cd test/test-case-generator && go build ./cmd/fuzz.go)",
     "forge-deploy": "forge-deploy",
     "export": "forge-deploy export",
     "deployments:sync": "forge-deploy sync",

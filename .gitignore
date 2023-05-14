@@ -33,3 +33,6 @@ node_modules/
 !*.default
 
 .DS_Store
+
+test/test-case-generator/fuzz
+test/differential-testing/differential-testing
