@@ -38,13 +38,14 @@ contract Proxy_Test is Test {
     SimpleStorage simpleStorage;
 
     function setUp() external {
-        // Deploy a proxy and simple storage contract as
-        // the implementation
+        // Deploy a proxy and simple storage contract as the implementation
         proxy = new Proxy(alice);
         simpleStorage = new SimpleStorage();
 
         vm.prank(alice);
         proxy.upgradeTo(address(simpleStorage));
+
+
     }
 
     function test_implementationKey_succeeds() external {

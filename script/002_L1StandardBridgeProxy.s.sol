@@ -8,7 +8,6 @@ import { L1ChugSplashProxy } from "@main/legacy/L1ChugSplashProxy.sol";
 
 contract DeployL1StandardBridgeProxyScript is DeployScript {
     using DeployerFunctions for Deployer;
-
     address owner;
 
     function deploy() external returns (L1ChugSplashProxy) {
