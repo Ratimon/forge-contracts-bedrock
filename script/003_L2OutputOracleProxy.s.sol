@@ -9,10 +9,10 @@ contract DeployL2OutputOracleProxyScript is DeployScript {
     using DeployerFunctions for Deployer;
     address proxyAdmin;
 
-        function deploy() external returns (Proxy) {
+    function deploy() external returns (Proxy) {
 
         proxyAdmin = deployer.getAddress('ProxyAdmin');
-
+        
         return Proxy(
 			deployer.deploy_Proxy(
 				"L2OutputOracleProxy",

@@ -10,7 +10,7 @@ import { ProxyAdmin } from "@main/universal/ProxyAdmin.sol";
 
 import {Deployer, getDeployer} from "forge-deploy/Deployer.sol";
 import {DeployProxyAdminScript} from "@script/000_DeployProxyAdmin.s.sol";
-import {DeployL2OutputOracleProxyScript} from "@script/003-L2OutputOracleProxy.s.sol";
+import {DeployL2OutputOracleProxyScript} from "@script/003_L2OutputOracleProxy.s.sol";
 
 contract L2OutputOracleProxy_Test is Test {
 
@@ -18,7 +18,6 @@ contract L2OutputOracleProxy_Test is Test {
 
     ProxyAdmin admin;
     Proxy l2OutputOracle;
-
 
     function setUp() external {       
         deployerProcedue = getDeployer();
