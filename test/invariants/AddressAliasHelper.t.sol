@@ -4,12 +4,11 @@ pragma solidity 0.8.15;
 import {Test} from "@forge-std/Test.sol";
 import {StdInvariant} from "@forge-std/StdInvariant.sol";
 import {AddressAliasHelper} from "@main/vendor/AddressAliasHelper.sol";
-
 contract AddressAliasHelper_Converter {
     bool public failedRoundtrip;
 
     /**
-     * @dev Allows the actor to convert l1 tp l2 address and vice versa.
+     * @dev Allows the actor to convert L1 to L2 addresses and vice versa.
      */
     function convertRoundTrip(address addr) external {
         // Alias our address
@@ -36,7 +35,7 @@ contract AddressAliasHelper_AddressAliasing_Invariant is StdInvariant, Test {
 
         bytes4[] memory selectors = new bytes4[](1);
         selectors[0] = actor.convertRoundTrip.selector;
-        FuzzSelector memory selector = FuzzSelector({addr: address(actor), selectors: selectors});
+        FuzzSelector memory selector = FuzzSelector({ addr: address(actor), selectors: selectors });
         targetSelector(selector);
     }
 
@@ -47,7 +46,7 @@ contract AddressAliasHelper_AddressAliasing_Invariant is StdInvariant, Test {
      * be unaliased with `undoL1ToL2Alias`.
      */
     function invariant_round_trip_aliasing() external {
-        // // ASSERTION: The round trip aliasing done in testRoundTrip(...) should never fail.
+        // ASSERTION: The round trip aliasing done in testRoundTrip(...) should never fail.
         assertEq(actor.failedRoundtrip(), false);
     }
 }
