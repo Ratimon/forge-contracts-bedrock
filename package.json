@@ -28,6 +28,7 @@
     "deployments:sync": "forge-deploy sync",
     "test": "pnpm gen-deployer && forge test",
     "invariant:aliasing": "forge test --match-path test/invariants/AddressAliasHelper.t.sol -vvv",
+    "invariant:burnEth": "forge test --match-path test/invariants/Burn.t.sol -vvv",
     "watch_compile": "as-soon -w script -w src -w test pnpm compile",
     "watch_deploy": "as-soon -w script -w src -w test pnpm run deploy",
     "watch_test": "as-soon -w script -w src -w test pnpm test",
