@@ -20,11 +20,11 @@ contract Burn_EthBurner is StdUtils  {
      * @notice Takes an integer amount of eth to burn through the Burn library and
      * updates the contract state if an incorrect amount of eth moved from the contract
      */
-    function burnEth(uint256 _value) public {
+    function burnEth(uint256 _value) external {
 
         uint256 preBurnvalue = bound(_value, 0, type(uint128).max);
 
-        // Give the burner some ether for some amount
+        // Give the burner some ether for gas being used
         vm.deal(address(this), preBurnvalue);
 
         // cache the contract's eth balance
