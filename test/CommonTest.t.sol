@@ -5,10 +5,20 @@ pragma solidity 0.8.15;
 import { Test, StdUtils } from "@forge-std/Test.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Types } from "@main/libraries/Types.sol";
+import { Predeploys } from "@main/libraries/Predeploys.sol";
+
+import { L2OutputOracle } from "@main/L1/L2OutputOracle.sol";
+import { OptimismPortal } from "@main/L1/OptimismPortal.sol";
+import { SystemConfig } from "@main/L1/SystemConfig.sol";
+import { ResourceMetering } from "@main/L1/ResourceMetering.sol";
+import { Constants } from "@main/libraries/Constants.sol";
+
+import { L2ToL1MessagePasser } from "@main/L2/L2ToL1MessagePasser.sol";
+
+import { Proxy } from "@main/universal/Proxy.sol";
 
 
 contract CommonTest is Test {
-
 
     address alice = makeAddr('Alice');
     address bob = makeAddr('Alice');
@@ -65,6 +75,122 @@ contract CommonTest is Test {
     }
     
 }
+
+contract L2OutputOracle_Initializer is CommonTest {
+    // Test target
+    L2OutputOracle oracle;
+    L2OutputOracle oracleImpl;
+
+    L2ToL1MessagePasser messagePasser =
+        L2ToL1MessagePasser(payable(Predeploys.L2_TO_L1_MESSAGE_PASSER));
+
+    // Constructor arguments
+    address internal proposer = 0x000000000000000000000000000000000000AbBa;
+    address internal owner = 0x000000000000000000000000000000000000ACDC;
+    uint256 internal submissionInterval = 1800;
+    uint256 internal l2BlockTime = 2;
+    uint256 internal startingBlockNumber = 200;
+    uint256 internal startingTimestamp = 1000;
+    address guardian;
+
+    // Test data
+    uint256 initL1Time;
+
+    event OutputProposed(
+        bytes32 indexed outputRoot,
+        uint256 indexed l2OutputIndex,
+        uint256 indexed l2BlockNumber,
+        uint256 l1Timestamp
+    );
+
+    event OutputsDeleted(uint256 indexed prevNextOutputIndex, uint256 indexed newNextOutputIndex);
+
+    // Advance the evm's time to meet the L2OutputOracle's requirements for proposeL2Output
+    function warpToProposeTime(uint256 _nextBlockNumber) public {
+        vm.warp(oracle.computeL2Timestamp(_nextBlockNumber) + 1);
+    }
+
+    function setUp() public virtual override {
+        super.setUp();
+        guardian = makeAddr("guardian");
+
+        // By default the first block has timestamp and number zero, which will cause underflows in the
+        // tests, so we'll move forward to these block values.
+        initL1Time = startingTimestamp + 1;
+        vm.warp(initL1Time);
+        vm.roll(startingBlockNumber);
+        // Deploy the L2OutputOracle and transfer owernship to the proposer
+        oracleImpl = new L2OutputOracle({
+            _submissionInterval: submissionInterval,
+            _l2BlockTime: l2BlockTime,
+            _startingBlockNumber: startingBlockNumber,
+            _startingTimestamp: startingTimestamp,
+            _proposer: proposer,
+            _challenger: owner,
+            _finalizationPeriodSeconds: 7 days
+        });
+        Proxy proxy = new Proxy(multisig);
+        vm.prank(multisig);
+        proxy.upgradeToAndCall(
+            address(oracleImpl),
+            abi.encodeCall(L2OutputOracle.initialize, (startingBlockNumber, startingTimestamp))
+        );
+        oracle = L2OutputOracle(address(proxy));
+        vm.label(address(oracle), "L2OutputOracle");
+
+        // Set the L2ToL1MessagePasser at the correct address
+        vm.etch(Predeploys.L2_TO_L1_MESSAGE_PASSER, address(new L2ToL1MessagePasser()).code);
+
+        vm.label(Predeploys.L2_TO_L1_MESSAGE_PASSER, "L2ToL1MessagePasser");
+    }
+}
+
+contract Portal_Initializer is L2OutputOracle_Initializer {
+    // Test target
+    OptimismPortal internal opImpl;
+    OptimismPortal internal op;
+    SystemConfig systemConfig;
+
+    event WithdrawalFinalized(bytes32 indexed withdrawalHash, bool success);
+    event WithdrawalProven(
+        bytes32 indexed withdrawalHash,
+        address indexed from,
+        address indexed to
+    );
+
+    function setUp() public virtual override {
+        super.setUp();
+
+        ResourceMetering.ResourceConfig memory config = Constants.DEFAULT_RESOURCE_CONFIG();
+
+        systemConfig = new SystemConfig({
+            _owner: address(1),
+            _overhead: 0,
+            _scalar: 10000,
+            _batcherHash: bytes32(0),
+            _gasLimit: 30_000_000,
+            _unsafeBlockSigner: address(0),
+            _config: config
+        });
+
+        opImpl = new OptimismPortal({
+            _l2Oracle: oracle,
+            _guardian: guardian,
+            _paused: true,
+            _config: systemConfig
+        });
+
+        Proxy proxy = new Proxy(multisig);
+        vm.prank(multisig);
+        proxy.upgradeToAndCall(
+            address(opImpl),
+            abi.encodeWithSelector(OptimismPortal.initialize.selector, false)
+        );
+        op = OptimismPortal(payable(address(proxy)));
+        vm.label(address(op), "OptimismPortal");
+    }
+}
+
 
 contract FFIInterface is Test {
     function getProveWithdrawalTransactionInputs(Types.WithdrawalTransaction memory _tx)
