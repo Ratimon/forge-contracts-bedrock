@@ -32,6 +32,7 @@
     "invariant:burnGas": "forge test --match-path test/invariants/Burn.Gas.t.sol -vvv",
     "invariant:encoding": "forge test --match-path test/invariants/Encoding.t.sol -vvv",
     "invariant:hashing": "forge test --match-path test/invariants/Hashing.t.sol -vvv",
+    "invariant:portal-deposit": "forge test --match-path test/invariants/OptimismPortal.deposit.t.sol -vvv --ffi",
     "invariant:portal": "forge test --match-path test/invariants/OptimismPortal.t.sol -vvv --ffi",
     "watch_compile": "as-soon -w script -w src -w test pnpm compile",
     "watch_deploy": "as-soon -w script -w src -w test pnpm run deploy",

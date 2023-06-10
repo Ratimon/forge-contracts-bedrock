@@ -11,6 +11,8 @@ import { SystemConfig } from "@main/L1/SystemConfig.sol";
 import { ResourceMetering } from "@main/L1/ResourceMetering.sol";
 import { Constants } from "@main/libraries/Constants.sol";
 
+import { Portal_Initializer } from "@test/CommonTest.t.sol";
+
 contract OptimismPortal_Depositor {
     OptimismPortal internal portal;
     bool public failedToComplete;
@@ -36,31 +38,13 @@ contract OptimismPortal_Depositor {
 
 }
 
-contract OptimismPortal_Deposit_Invariant is StdInvariant, Test {
+contract OptimismPortal_Deposit_Invariant is Portal_Initializer {
     OptimismPortal_Depositor internal actor;
 
-    function setUp() public {
-
-        ResourceMetering.ResourceConfig memory rcfg = Constants.DEFAULT_RESOURCE_CONFIG();
-        SystemConfig systemConfig = new SystemConfig({
-            _owner: address(1),
-            _overhead: 0,
-            _scalar: 10000,
-            _batcherHash: bytes32(0),
-            _gasLimit: 30_000_000,
-            _unsafeBlockSigner: address(0),
-            _config: rcfg
-        });
-
-        OptimismPortal portal = new OptimismPortal({
-            _l2Oracle: L2OutputOracle(address(0)),
-            _guardian: address(0),
-            _paused: false,
-            _config: systemConfig
-        });
-
+    function setUp() public override {
+        super.setUp();
         // Create a deposit actor.
-        actor = new OptimismPortal_Depositor(portal);
+        actor = new OptimismPortal_Depositor(op);
 
         targetContract(address(actor));
 
