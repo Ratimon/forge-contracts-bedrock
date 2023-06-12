@@ -2,15 +2,15 @@ lockfileVersion: 5.3
 
 specifiers:
   as-soon: ^0.0.4
-  forge-deploy: 0.0.37
-  forge-deploy-proxy: ^0.0.3
+  forge-deploy: 0.1.1
+  forge-deploy-proxy: ^0.1.0
   ldenv: ^0.3.5
   set-defaults: ^0.0.1
 
 devDependencies:
   as-soon: 0.0.4
-  forge-deploy: 0.0.37
-  forge-deploy-proxy: 0.0.3_forge-deploy@0.0.37
+  forge-deploy: 0.1.1
+  forge-deploy-proxy: 0.1.0_forge-deploy@0.1.1
   ldenv: 0.3.5
   set-defaults: 0.0.1
 
@@ -104,16 +104,16 @@ packages:
         optional: true
     dev: true
 
-  /forge-deploy-proxy/0.0.3_forge-deploy@0.0.37:
-    resolution: {integrity: sha512-Be/RCNvRqTfsxqN9wGCJ0FWirOqKRnNPwr671nz9kpHtIKsqNZ6hI33RVWGVrQ0M35UxvlmNHHXMNa49oAvyMw==}
+  /forge-deploy-proxy/0.1.0_forge-deploy@0.1.1:
+    resolution: {integrity: sha512-9GUvXP27sdR9a22n6A65Q7x/ljHcEqKk/62VU94DlUctr0E0BsroU9qGZLQREzhYcNajOd+8If37Qc4OYaS6Mg==}
     peerDependencies:
-      forge-deploy: ^0.0.35
+      forge-deploy: '>=0.1.0 && < 0.2.0'
     dependencies:
-      forge-deploy: 0.0.37
+      forge-deploy: 0.1.1
     dev: true
 
-  /forge-deploy/0.0.37:
-    resolution: {integrity: sha512-QIA0rsAE5wqwgMH1HX0bgKmG/57hwbGMwi8ZpayidugLzbBIzYGbaHQ+gtSQcpd4gW8+p5AYA9sA4WajiJuA+w==}
+  /forge-deploy/0.1.1:
+    resolution: {integrity: sha512-x2Q6iJf3hzY+zU9mTuhgVugSmT/vAbtzyuARmcFypwNPw7mV4SYcfyjab6lLGbLDgb/8xCfQw6amCIpGEfl6Dg==}
     hasBin: true
     requiresBuild: true
     dependencies:
