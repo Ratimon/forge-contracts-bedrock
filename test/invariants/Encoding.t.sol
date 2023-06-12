@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "@forge-std/Test.sol";
 import {StdInvariant} from "@forge-std/StdInvariant.sol";
-import { Encoding } from "@main/libraries/Encoding.sol";
+import {Encoding} from "@main/libraries/Encoding.sol";
 
 contract Encoding_Converter {
     bool public failedRoundtripAToB;
@@ -64,10 +64,9 @@ contract Encoding_Invariant is StdInvariant, Test {
         bytes4[] memory selectors = new bytes4[](2);
         selectors[0] = actor.convertRoundTripAToB.selector;
         selectors[1] = actor.convertRoundTripBToA.selector;
-        FuzzSelector memory selector = FuzzSelector({ addr: address(actor), selectors: selectors });
+        FuzzSelector memory selector = FuzzSelector({addr: address(actor), selectors: selectors});
         targetSelector(selector);
     }
-
 
     /**
      * @custom:invariant `convertRoundTripAToB` never fails.
@@ -90,7 +89,4 @@ contract Encoding_Invariant is StdInvariant, Test {
         // fail.
         assertEq(actor.failedRoundtripBToA(), false);
     }
-
-
 }
-

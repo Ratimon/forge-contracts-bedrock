@@ -3,8 +3,8 @@ pragma solidity 0.8.15;
 
 import {Test} from "@forge-std/Test.sol";
 import {StdInvariant} from "@forge-std/StdInvariant.sol";
-import { Encoding } from "@main/libraries/Encoding.sol";
-import { Hashing } from "@main/libraries/Hashing.sol";
+import {Encoding} from "@main/libraries/Encoding.sol";
+import {Hashing} from "@main/libraries/Hashing.sol";
 
 contract Hash_CrossDomainHasher {
     bool public failedCrossDomainHashHighVersion;
@@ -54,20 +54,8 @@ contract Hash_CrossDomainHasher {
 
         // hash the cross domain message using the unversioned and versioned functions for
         // comparison
-        bytes32 sampleHash1 = Hashing.hashCrossDomainMessage(
-            encodedNonce,
-            _sender,
-            _target,
-            _value,
-            _gasLimit,
-            _data
-        );
-        bytes32 sampleHash2 = Hashing.hashCrossDomainMessageV0(
-            _target,
-            _sender,
-            _data,
-            encodedNonce
-        );
+        bytes32 sampleHash1 = Hashing.hashCrossDomainMessage(encodedNonce, _sender, _target, _value, _gasLimit, _data);
+        bytes32 sampleHash2 = Hashing.hashCrossDomainMessageV0(_target, _sender, _data, encodedNonce);
 
         // check that the output of both functions matches
         if (sampleHash1 != sampleHash2) {
@@ -92,31 +80,14 @@ contract Hash_CrossDomainHasher {
 
         // hash the cross domain message using the unversioned and versioned functions for
         // comparison
-        bytes32 sampleHash1 = Hashing.hashCrossDomainMessage(
-            encodedNonce,
-            _sender,
-            _target,
-            _value,
-            _gasLimit,
-            _data
-        );
-        bytes32 sampleHash2 = Hashing.hashCrossDomainMessageV1(
-            encodedNonce,
-            _sender,
-            _target,
-            _value,
-            _gasLimit,
-            _data
-        );
+        bytes32 sampleHash1 = Hashing.hashCrossDomainMessage(encodedNonce, _sender, _target, _value, _gasLimit, _data);
+        bytes32 sampleHash2 = Hashing.hashCrossDomainMessageV1(encodedNonce, _sender, _target, _value, _gasLimit, _data);
 
         // check that the output of both functions matches
         if (sampleHash1 != sampleHash2) {
             failedCrossDomainHashV1 = true;
         }
     }
-
-
-
 }
 
 contract Hashing_Invariant is StdInvariant, Test {
@@ -132,7 +103,7 @@ contract Hashing_Invariant is StdInvariant, Test {
         selectors[0] = actor.hashCrossDomainMessageHighVersion.selector;
         selectors[1] = actor.hashCrossDomainMessageV0.selector;
         selectors[2] = actor.hashCrossDomainMessageV1.selector;
-        FuzzSelector memory selector = FuzzSelector({ addr: address(actor), selectors: selectors });
+        FuzzSelector memory selector = FuzzSelector({addr: address(actor), selectors: selectors});
         targetSelector(selector);
     }
 
@@ -172,5 +143,3 @@ contract Hashing_Invariant is StdInvariant, Test {
         assertEq(actor.failedCrossDomainHashV1(), false);
     }
 }
-
-

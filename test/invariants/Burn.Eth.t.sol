@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import { StdUtils } from "@forge-std/StdUtils.sol";
+import {StdUtils} from "@forge-std/StdUtils.sol";
 import {Test} from "@forge-std/Test.sol";
-import { Vm } from "@forge-std/Vm.sol";
+import {Vm} from "@forge-std/Vm.sol";
 
 import {StdInvariant} from "@forge-std/StdInvariant.sol";
 import {Burn} from "@main/libraries/Burn.sol";
 
-contract Burn_EthBurner is StdUtils  {
+contract Burn_EthBurner is StdUtils {
     Vm internal vm;
     bool public failedEthBurn;
 
@@ -21,7 +21,6 @@ contract Burn_EthBurner is StdUtils  {
      * updates the contract state if an incorrect amount of eth moved from the contract
      */
     function burnEth(uint256 _value) external {
-
         uint256 preBurnvalue = bound(_value, 0, type(uint128).max);
 
         // Give the burner some ether for gas being used
@@ -42,8 +41,6 @@ contract Burn_EthBurner is StdUtils  {
             }
         }
     }
-
-
 }
 
 contract Burn_BurnEth_Invariant is StdInvariant, Test {
@@ -58,7 +55,7 @@ contract Burn_BurnEth_Invariant is StdInvariant, Test {
 
         bytes4[] memory selectors = new bytes4[](1);
         selectors[0] = actor.burnEth.selector;
-        FuzzSelector memory selector = FuzzSelector({ addr: address(actor), selectors: selectors });
+        FuzzSelector memory selector = FuzzSelector({addr: address(actor), selectors: selectors});
         targetSelector(selector);
     }
 
@@ -72,5 +69,4 @@ contract Burn_BurnEth_Invariant is StdInvariant, Test {
         // ASSERTION: The amount burned should always match the amount passed exactly
         assertEq(actor.failedEthBurn(), false);
     }
-
 }

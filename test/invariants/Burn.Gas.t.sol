@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import { StdUtils } from "@forge-std/StdUtils.sol";
+import {StdUtils} from "@forge-std/StdUtils.sol";
 import {Test} from "@forge-std/Test.sol";
-import { Vm } from "@forge-std/Vm.sol";
+import {Vm} from "@forge-std/Vm.sol";
 
 import {StdInvariant} from "@forge-std/StdInvariant.sol";
 import {Burn} from "@main/libraries/Burn.sol";
 
-contract Burn_GasBurner is StdUtils  {
+contract Burn_GasBurner is StdUtils {
     Vm internal vm;
     bool public failedGasBurn;
 
@@ -42,8 +42,6 @@ contract Burn_GasBurner is StdUtils  {
             }
         }
     }
-
-
 }
 
 contract Burn_BurnGas_Invariant is StdInvariant, Test {
@@ -57,7 +55,7 @@ contract Burn_BurnGas_Invariant is StdInvariant, Test {
 
         bytes4[] memory selectors = new bytes4[](1);
         selectors[0] = actor.burnGas.selector;
-        FuzzSelector memory selector = FuzzSelector({ addr: address(actor), selectors: selectors });
+        FuzzSelector memory selector = FuzzSelector({addr: address(actor), selectors: selectors});
         targetSelector(selector);
     }
 
@@ -71,5 +69,4 @@ contract Burn_BurnGas_Invariant is StdInvariant, Test {
         // ASSERTION: The amount burned should always match the amount passed exactly
         assertEq(actor.failedGasBurn(), false);
     }
-
 }

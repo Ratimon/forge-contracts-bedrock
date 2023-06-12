@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import { OptimismPortal } from "@main/L1/OptimismPortal.sol";
-import { L2OutputOracle } from "@main/L1/L2OutputOracle.sol";
-import { AddressAliasHelper } from "@main/vendor/AddressAliasHelper.sol";
-import { SystemConfig } from "@main/L1/SystemConfig.sol";
-import { ResourceMetering } from "@main/L1/ResourceMetering.sol";
-import { Constants } from "@main/libraries/Constants.sol";
+import {OptimismPortal} from "@main/L1/OptimismPortal.sol";
+import {L2OutputOracle} from "@main/L1/L2OutputOracle.sol";
+import {AddressAliasHelper} from "@main/vendor/AddressAliasHelper.sol";
+import {SystemConfig} from "@main/L1/SystemConfig.sol";
+import {ResourceMetering} from "@main/L1/ResourceMetering.sol";
+import {Constants} from "@main/libraries/Constants.sol";
 
-import { Portal_Initializer } from "@test/CommonTest.t.sol";
-import { Types } from "@main/libraries/Types.sol";
+import {Portal_Initializer} from "@test/CommonTest.t.sol";
+import {Types} from "@main/libraries/Types.sol";
 
 contract OptimismPortal_Depositor {
     OptimismPortal internal portal;
@@ -30,10 +30,9 @@ contract OptimismPortal_Depositor {
     ) public payable {
         failedToComplete = true;
         require(!_isCreation || _to == address(0), "OptimismPortal_Depositor: invalid test case.");
-        portal.depositTransaction{ value: _mint }(_to, _value, _gasLimit, _isCreation, _data);
+        portal.depositTransaction{value: _mint}(_to, _value, _gasLimit, _isCreation, _data);
         failedToComplete = false;
     }
-
 }
 
 contract OptimismPortal_Invariant_Harness is Portal_Initializer {
@@ -61,8 +60,8 @@ contract OptimismPortal_Invariant_Harness is Portal_Initializer {
             data: hex""
         });
         // Get withdrawal proof data we can use for testing.
-        (_stateRoot, _storageRoot, _outputRoot, _withdrawalHash, _withdrawalProof) = ffi
-            .getProveWithdrawalTransactionInputs(_defaultTx);
+        (_stateRoot, _storageRoot, _outputRoot, _withdrawalHash, _withdrawalProof) =
+            ffi.getProveWithdrawalTransactionInputs(_defaultTx);
 
         // Setup a dummy output root proof for reuse.
         _outputRootProof = Types.OutputRootProof({
@@ -80,11 +79,7 @@ contract OptimismPortal_Invariant_Harness is Portal_Initializer {
         oracle.proposeL2Output(_outputRoot, _proposedBlockNumber, 0, 0);
 
         // Warp beyond the finalization period for the block we've proposed.
-        vm.warp(
-            oracle.getL2Output(_proposedOutputIndex).timestamp +
-                oracle.FINALIZATION_PERIOD_SECONDS() +
-                1
-        );
+        vm.warp(oracle.getL2Output(_proposedOutputIndex).timestamp + oracle.FINALIZATION_PERIOD_SECONDS() + 1);
         // Fund the portal so that we can withdraw ETH.
         vm.deal(address(op), 0xFFFFFFFF);
     }
@@ -102,7 +97,7 @@ contract OptimismPortal_Deposit_Invariant is Portal_Initializer {
 
         bytes4[] memory selectors = new bytes4[](1);
         selectors[0] = actor.depositTransactionCompletes.selector;
-        FuzzSelector memory selector = FuzzSelector({ addr: address(actor), selectors: selectors });
+        FuzzSelector memory selector = FuzzSelector({addr: address(actor), selectors: selectors});
         targetSelector(selector);
     }
 
@@ -123,12 +118,7 @@ contract OptimismPortal_CannotTimeTravel is OptimismPortal_Invariant_Harness {
         super.setUp();
 
         // Prove the withdrawal transaction
-        op.proveWithdrawalTransaction(
-            _defaultTx,
-            _proposedOutputIndex,
-            _outputRootProof,
-            _withdrawalProof
-        );
+        op.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
 
         // Set the target contract to the portal proxy
         targetContract(address(op));
@@ -154,12 +144,7 @@ contract OptimismPortal_CannotFinalizeTwice is OptimismPortal_Invariant_Harness 
         super.setUp();
 
         // Prove the withdrawal transaction
-        op.proveWithdrawalTransaction(
-            _defaultTx,
-            _proposedOutputIndex,
-            _outputRootProof,
-            _withdrawalProof
-        );
+        op.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
 
         // Warp past the finalization period.
         vm.warp(block.timestamp + oracle.FINALIZATION_PERIOD_SECONDS() + 1);
@@ -191,12 +176,7 @@ contract OptimismPortal_CanAlwaysFinalizeAfterWindow is OptimismPortal_Invariant
         super.setUp();
 
         // Prove the withdrawal transaction
-        op.proveWithdrawalTransaction(
-            _defaultTx,
-            _proposedOutputIndex,
-            _outputRootProof,
-            _withdrawalProof
-        );
+        op.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
 
         // Warp past the finalization period.
         vm.warp(block.timestamp + oracle.FINALIZATION_PERIOD_SECONDS() + 1);

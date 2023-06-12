@@ -3,21 +3,20 @@ pragma solidity 0.8.15;
 
 import {console} from "@forge-std/console.sol";
 
-import { Test } from "@forge-std/Test.sol";
-import { Proxy } from "@main/universal/Proxy.sol";
-import { ProxyAdmin } from "@main/universal/ProxyAdmin.sol";
-import { SimpleStorage } from "./Proxy.t.sol";
-import { L1ChugSplashProxy } from "@main/legacy/L1ChugSplashProxy.sol";
-import { ResolvedDelegateProxy } from "@main/legacy/ResolvedDelegateProxy.sol";
-import { AddressManager } from "@main/legacy/AddressManager.sol";
+import {Test} from "@forge-std/Test.sol";
+import {Proxy} from "@main/universal/Proxy.sol";
+import {ProxyAdmin} from "@main/universal/ProxyAdmin.sol";
+import {SimpleStorage} from "./Proxy.t.sol";
+import {L1ChugSplashProxy} from "@main/legacy/L1ChugSplashProxy.sol";
+import {ResolvedDelegateProxy} from "@main/legacy/ResolvedDelegateProxy.sol";
+import {AddressManager} from "@main/legacy/AddressManager.sol";
 
 import {Deployer, getDeployer} from "forge-deploy/Deployer.sol";
 import {DeployProxyAdminScript} from "@script/000_DeployProxyAdmin.s.sol";
 import {DeployAddressManagerScript} from "@script/001_DeployAddressManager.s.sol";
 
 contract ProxyAdmin_Test is Test {
-
-    string  mnemonic = vm.envString("MNEMONIC") ;
+    string mnemonic = vm.envString("MNEMONIC");
     uint256 ownerPrivateKey = vm.deriveKey(mnemonic, "m/44'/60'/0'/0/", 1); //  address = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
     address owner = vm.envOr("DEPLOYER", vm.addr(ownerPrivateKey));
 
@@ -30,7 +29,7 @@ contract ProxyAdmin_Test is Test {
     ProxyAdmin admin;
     SimpleStorage implementation;
 
-    function setUp() external {       
+    function setUp() external {
         deployerProcedue = getDeployer();
         deployerProcedue.setAutoBroadcast(false);
 
@@ -81,7 +80,6 @@ contract ProxyAdmin_Test is Test {
         _;
     }
 
-
     function test_setImplementationName_succeeds() external beforeEach {
         // deployer.activatePrank(vm.envAddress("DEPLOYER"));
         vm.prank(owner);
@@ -118,19 +116,13 @@ contract ProxyAdmin_Test is Test {
     function test_proxyType_succeeds() external beforeEach {
         // vm.prank(owner);
         assertEq(uint256(admin.proxyType(address(proxy))), uint256(ProxyAdmin.ProxyType.ERC1967));
-        assertEq(
-            uint256(admin.proxyType(address(chugsplash))),
-            uint256(ProxyAdmin.ProxyType.CHUGSPLASH)
-        );
-        assertEq(
-            uint256(admin.proxyType(address(resolved))),
-            uint256(ProxyAdmin.ProxyType.RESOLVED)
-        );
+        assertEq(uint256(admin.proxyType(address(chugsplash))), uint256(ProxyAdmin.ProxyType.CHUGSPLASH));
+        assertEq(uint256(admin.proxyType(address(resolved))), uint256(ProxyAdmin.ProxyType.RESOLVED));
     }
 
     function test_erc1967GetProxyImplementation_succeeds() external beforeEach {
         // vm.prank(owner, owner);
-       
+
         getProxyImplementation(payable(proxy));
     }
 
@@ -258,11 +250,7 @@ contract ProxyAdmin_Test is Test {
 
     function upgradeAndCall(address payable _proxy) internal {
         vm.prank(owner);
-        admin.upgradeAndCall(
-            _proxy,
-            address(implementation),
-            abi.encodeWithSelector(SimpleStorage.set.selector, 1, 1)
-        );
+        admin.upgradeAndCall(_proxy, address(implementation), abi.encodeWithSelector(SimpleStorage.set.selector, 1, 1));
 
         address impl = admin.getProxyImplementation(_proxy);
         assertEq(impl, address(implementation));

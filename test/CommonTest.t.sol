@@ -2,27 +2,25 @@
 pragma solidity 0.8.15;
 
 /* Testing utilities */
-import { Test, StdUtils } from "@forge-std/Test.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { Types } from "@main/libraries/Types.sol";
-import { Predeploys } from "@main/libraries/Predeploys.sol";
+import {Test, StdUtils} from "@forge-std/Test.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Types} from "@main/libraries/Types.sol";
+import {Predeploys} from "@main/libraries/Predeploys.sol";
 
-import { L2OutputOracle } from "@main/L1/L2OutputOracle.sol";
-import { OptimismPortal } from "@main/L1/OptimismPortal.sol";
-import { SystemConfig } from "@main/L1/SystemConfig.sol";
-import { ResourceMetering } from "@main/L1/ResourceMetering.sol";
-import { Constants } from "@main/libraries/Constants.sol";
+import {L2OutputOracle} from "@main/L1/L2OutputOracle.sol";
+import {OptimismPortal} from "@main/L1/OptimismPortal.sol";
+import {SystemConfig} from "@main/L1/SystemConfig.sol";
+import {ResourceMetering} from "@main/L1/ResourceMetering.sol";
+import {Constants} from "@main/libraries/Constants.sol";
 
-import { L2ToL1MessagePasser } from "@main/L2/L2ToL1MessagePasser.sol";
+import {L2ToL1MessagePasser} from "@main/L2/L2ToL1MessagePasser.sol";
 
-import { Proxy } from "@main/universal/Proxy.sol";
-
+import {Proxy} from "@main/universal/Proxy.sol";
 
 contract CommonTest is Test {
-
-    address alice = makeAddr('Alice');
-    address bob = makeAddr('Alice');
-    address multisig = makeAddr('Multisig');
+    address alice = makeAddr("Alice");
+    address bob = makeAddr("Alice");
+    address multisig = makeAddr("Multisig");
 
     address immutable ZERO_ADDRESS = address(0);
     address immutable NON_ZERO_ADDRESS = address(1);
@@ -32,12 +30,7 @@ contract CommonTest is Test {
     bytes32 nonZeroHash = keccak256(abi.encode("NON_ZERO"));
     bytes NON_ZERO_DATA = hex"0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff0000";
 
-    event TransactionDeposited(
-        address indexed from,
-        address indexed to,
-        uint256 indexed version,
-        bytes opaqueData
-    );
+    event TransactionDeposited(address indexed from, address indexed to, uint256 indexed version, bytes opaqueData);
 
     FFIInterface ffi;
 
@@ -66,14 +59,8 @@ contract CommonTest is Test {
         bool _isCreation,
         bytes memory _data
     ) internal {
-        emit TransactionDeposited(
-            _from,
-            _to,
-            0,
-            abi.encodePacked(_mint, _value, _gasLimit, _isCreation, _data)
-        );
+        emit TransactionDeposited(_from, _to, 0, abi.encodePacked(_mint, _value, _gasLimit, _isCreation, _data));
     }
-    
 }
 
 contract L2OutputOracle_Initializer is CommonTest {
@@ -81,8 +68,7 @@ contract L2OutputOracle_Initializer is CommonTest {
     L2OutputOracle oracle;
     L2OutputOracle oracleImpl;
 
-    L2ToL1MessagePasser messagePasser =
-        L2ToL1MessagePasser(payable(Predeploys.L2_TO_L1_MESSAGE_PASSER));
+    L2ToL1MessagePasser messagePasser = L2ToL1MessagePasser(payable(Predeploys.L2_TO_L1_MESSAGE_PASSER));
 
     // Constructor arguments
     address internal proposer = 0x000000000000000000000000000000000000AbBa;
@@ -97,10 +83,7 @@ contract L2OutputOracle_Initializer is CommonTest {
     uint256 initL1Time;
 
     event OutputProposed(
-        bytes32 indexed outputRoot,
-        uint256 indexed l2OutputIndex,
-        uint256 indexed l2BlockNumber,
-        uint256 l1Timestamp
+        bytes32 indexed outputRoot, uint256 indexed l2OutputIndex, uint256 indexed l2BlockNumber, uint256 l1Timestamp
     );
 
     event OutputsDeleted(uint256 indexed prevNextOutputIndex, uint256 indexed newNextOutputIndex);
@@ -132,8 +115,7 @@ contract L2OutputOracle_Initializer is CommonTest {
         Proxy proxy = new Proxy(multisig);
         vm.prank(multisig);
         proxy.upgradeToAndCall(
-            address(oracleImpl),
-            abi.encodeCall(L2OutputOracle.initialize, (startingBlockNumber, startingTimestamp))
+            address(oracleImpl), abi.encodeCall(L2OutputOracle.initialize, (startingBlockNumber, startingTimestamp))
         );
         oracle = L2OutputOracle(address(proxy));
         vm.label(address(oracle), "L2OutputOracle");
@@ -152,11 +134,7 @@ contract Portal_Initializer is L2OutputOracle_Initializer {
     SystemConfig systemConfig;
 
     event WithdrawalFinalized(bytes32 indexed withdrawalHash, bool success);
-    event WithdrawalProven(
-        bytes32 indexed withdrawalHash,
-        address indexed from,
-        address indexed to
-    );
+    event WithdrawalProven(bytes32 indexed withdrawalHash, address indexed from, address indexed to);
 
     function setUp() public virtual override {
         super.setUp();
@@ -182,26 +160,16 @@ contract Portal_Initializer is L2OutputOracle_Initializer {
 
         Proxy proxy = new Proxy(multisig);
         vm.prank(multisig);
-        proxy.upgradeToAndCall(
-            address(opImpl),
-            abi.encodeWithSelector(OptimismPortal.initialize.selector, false)
-        );
+        proxy.upgradeToAndCall(address(opImpl), abi.encodeWithSelector(OptimismPortal.initialize.selector, false));
         op = OptimismPortal(payable(address(proxy)));
         vm.label(address(op), "OptimismPortal");
     }
 }
 
-
 contract FFIInterface is Test {
     function getProveWithdrawalTransactionInputs(Types.WithdrawalTransaction memory _tx)
         external
-        returns (
-            bytes32,
-            bytes32,
-            bytes32,
-            bytes32,
-            bytes[] memory
-        )
+        returns (bytes32, bytes32, bytes32, bytes32, bytes[] memory)
     {
         string[] memory cmds = new string[](8);
         cmds[0] = "test/differential-testing/differential-testing";
@@ -312,10 +280,7 @@ contract FFIInterface is Test {
         return abi.decode(result, (bytes32));
     }
 
-    function encodeDepositTransaction(Types.UserDepositTransaction calldata txn)
-        external
-        returns (bytes memory)
-    {
+    function encodeDepositTransaction(Types.UserDepositTransaction calldata txn) external returns (bytes memory) {
         string[] memory cmds = new string[](11);
         cmds[0] = "test/differential-testing/differential-testing";
         cmds[1] = "encodeDepositTransaction";
@@ -367,12 +332,7 @@ contract FFIInterface is Test {
 
     function getMerkleTrieFuzzCase(string memory variant)
         external
-        returns (
-            bytes32,
-            bytes memory,
-            bytes memory,
-            bytes[] memory
-        )
+        returns (bytes32, bytes memory, bytes memory, bytes[] memory)
     {
         string[] memory cmds = new string[](5);
         cmds[0] = "test/test-case-generator/fuzz";

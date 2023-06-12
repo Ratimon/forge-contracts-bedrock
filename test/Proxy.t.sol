@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import { Test } from "@forge-std/Test.sol";
-import { Proxy } from "@main/universal/Proxy.sol";
-import { Bytes32AddressLib } from "@solmate/utils/Bytes32AddressLib.sol";
+import {Test} from "@forge-std/Test.sol";
+import {Proxy} from "@main/universal/Proxy.sol";
+import {Bytes32AddressLib} from "@solmate/utils/Bytes32AddressLib.sol";
 
 contract SimpleStorage {
     mapping(uint256 => uint256) internal store;
@@ -27,10 +27,9 @@ contract Proxy_Test is Test {
     event Upgraded(address indexed implementation);
     event AdminChanged(address previousAdmin, address newAdmin);
 
-    address alice = makeAddr('Alice');
+    address alice = makeAddr("Alice");
 
-    bytes32 internal constant IMPLEMENTATION_KEY =
-        bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
+    bytes32 internal constant IMPLEMENTATION_KEY = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
 
     bytes32 internal constant OWNER_KEY = bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1);
 
@@ -44,8 +43,6 @@ contract Proxy_Test is Test {
 
         vm.prank(alice);
         proxy.upgradeTo(address(simpleStorage));
-
-
     }
 
     function test_implementationKey_succeeds() external {
@@ -156,10 +153,7 @@ contract Proxy_Test is Test {
         vm.expectEmit(true, true, true, true);
         emit Upgraded(address(simpleStorage));
         vm.prank(alice);
-        proxy.upgradeToAndCall(
-            address(simpleStorage),
-            abi.encodeWithSelector(simpleStorage.set.selector, 1, 1)
-        );
+        proxy.upgradeToAndCall(address(simpleStorage), abi.encodeWithSelector(simpleStorage.set.selector, 1, 1));
 
         // The call should have impacted the state
         uint256 result = SimpleStorage(address(proxy)).get(1);
@@ -192,10 +186,7 @@ contract Proxy_Test is Test {
         // The attempt to `upgradeToAndCall`
         // should revert when it is not called by the owner.
         vm.expectRevert();
-        proxy.upgradeToAndCall(
-            address(simpleStorage),
-            abi.encodeWithSelector(simpleStorage.set.selector, 1, 1)
-        );
+        proxy.upgradeToAndCall(address(simpleStorage), abi.encodeWithSelector(simpleStorage.set.selector, 1, 1));
     }
 
     function test_upgradeToAndCall_isPayable_succeeds() external {
@@ -204,9 +195,8 @@ contract Proxy_Test is Test {
         // Set the implementation and call and send
         // value.
         vm.prank(alice);
-        proxy.upgradeToAndCall{ value: 1 ether }(
-            address(simpleStorage),
-            abi.encodeWithSelector(simpleStorage.set.selector, 1, 1)
+        proxy.upgradeToAndCall{value: 1 ether}(
+            address(simpleStorage), abi.encodeWithSelector(simpleStorage.set.selector, 1, 1)
         );
 
         // The implementation address should be correct
@@ -268,10 +258,7 @@ contract Proxy_Test is Test {
         (bool success, bytes memory returndata) = address(proxy).call(hex"");
         assertEq(success, false);
 
-        bytes memory err = abi.encodeWithSignature(
-            "Error(string)",
-            "Proxy: implementation not initialized"
-        );
+        bytes memory err = abi.encodeWithSignature("Error(string)", "Proxy: implementation not initialized");
 
         assertEq(returndata, err);
     }

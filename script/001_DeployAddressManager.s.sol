@@ -6,15 +6,10 @@ import {DeployerFunctions} from "@generated/deployer/DeployerFunctions.g.sol";
 
 import {AddressManager} from "@main/legacy/AddressManager.sol";
 
-contract DeployAddressManagerScript is  DeployScript {
+contract DeployAddressManagerScript is DeployScript {
     using DeployerFunctions for Deployer;
 
     function deploy() external returns (AddressManager) {
-
-        return AddressManager(
-			deployer.deploy_AddressManager(
-				"Lib_AddressManager"
-			)
-		);
+        return AddressManager(deployer.deploy_AddressManager("Lib_AddressManager"));
     }
 }
