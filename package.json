@@ -26,7 +26,7 @@
     "forge-deploy": "forge-deploy",
     "export": "forge-deploy export",
     "deployments:sync": "forge-deploy sync",
-    "test": "pnpm gen-deployer && forge test",
+    "test": "pnpm gen-deployer && forge test --ffi",
     "invariant:aliasing": "forge test --match-path test/invariants/AddressAliasHelper.t.sol -vvv",
     "invariant:burnEth": "forge test --match-path test/invariants/Burn.Eth.t.sol -vvv",
     "invariant:burnGas": "forge test --match-path test/invariants/Burn.Gas.t.sol -vvv",
