@@ -35,4 +35,4 @@ node_modules/
 .DS_Store
 
 test/test-case-generator/fuzz
-# test/differential-testing/differential-testing
+test/differential-testing/differential-testing
