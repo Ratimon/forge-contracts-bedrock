@@ -3,10 +3,7 @@ pragma solidity 0.8.15;
 
 import {StdUtils} from "@forge-std/StdUtils.sol";
 import {Vm} from "@forge-std/Vm.sol";
-// import {console } from "@forge-std/console.sol";
 
-
-// import {SystemConfig} from "@main/L1/SystemConfig.sol";
 import {OptimismPortal} from "@main/L1/OptimismPortal.sol";
 import {L2OutputOracle} from "@main/L1/L2OutputOracle.sol";
 import {AddressAliasHelper} from "@main/vendor/AddressAliasHelper.sol";
@@ -28,7 +25,6 @@ contract OptimismPortal_Depositor is StdUtils, ResourceMetering {
         initialize();
     }
 
-
     function initialize() internal initializer {
         __ResourceMetering_init();
     }
@@ -45,24 +41,12 @@ contract OptimismPortal_Depositor is StdUtils, ResourceMetering {
     // A test intended to identify any unexpected halting conditions
     function depositTransactionCompletes(
         address _to,
-        // uint256 _mint,
         uint256 _value,
         uint64 _gasLimit,
         bool _isCreation,
         bytes memory _data
     ) public payable {
-        // failedToComplete = true;
-        // require(!_isCreation || _to == address(0), "OptimismPortal_Depositor: invalid test case.");
-        // portal.depositTransaction{value: _mint}(_to, _value, _gasLimit, _isCreation, _data);
-        // failedToComplete = false;
-
-        
-        // function _resourceConfig() internal view override returns (ResourceMetering.ResourceConfig memory) {
-        //     return SYSTEM_CONFIG.resourceConfig();
-        // }
-    
-
-        // failedToComplete = true;
+        failedToComplete = false;
 
         vm.assume(_isCreation == false || _to == address(0));
         require(!_isCreation || _to == address(0), "OptimismPortal_Depositor: invalid test case.");
@@ -72,75 +56,20 @@ contract OptimismPortal_Depositor is StdUtils, ResourceMetering {
         vm.deal(address(this), preDepositvalue);
         // cache the contract's eth balance
         uint256 preDepositBalance = address(this).balance;
-
         uint256 value = bound(preDepositvalue, 0, preDepositBalance);
-
-        // _resourceConfig
-        // struct ResourceParams {
-        //     uint128 prevBaseFee;
-        //     uint64 prevBoughtGas;
-        //     uint64 prevBlockNum;
-        // }
-    
-
-        // ResourceMetering.ResourceConfig memory rcfg = resourceConfig();
-        // ResourceMetering.ResourceParams memory rcfg =  ResourceMetering(address(portal)).params;
-    //    (,uint64 cachedPrevBoughtGas, uint64 cachedPrevBlockNum) =  ResourceMetering(address(portal)).params();
        (,uint64 cachedPrevBoughtGas,) =  ResourceMetering(address(portal)).params();
-
-
-        // uint256 targetResourceLimit = uint256(rcfg.maxResourceLimit);
-
-        // uint256 blockDiff = block.number - rcfg.prevBlockNum;
-        // uint256 blockDiff = block.number - cachedPrevBlockNum;
-
-        // uint64 prevBoughtGas;
-
-
-        // if (blockDiff > 0) {
-        //     // prevBoughtGas =  rcfg.prevBoughtGas;
-        //     prevBoughtGas =  cachedPrevBoughtGas;
-
-        //     // params.prevBoughtGas = 0;
-        //     // params.prevBlockNum = uint64(block.number);
-        // }
-
-        // prevBoughtGas = 0;
-
-        // console.log('cachedPrevBoughtGas', cachedPrevBoughtGas);
-        // console.log('cachedPrevBlockNum', cachedPrevBlockNum);
-        // console.log('block.number', block.number);
 
         ResourceMetering.ResourceConfig memory rcfg = resourceConfig();
         uint256 maxResourceLimit = uint64(rcfg.maxResourceLimit);
-
-
         uint64 gasLimit = uint64(bound(_gasLimit, portal.minimumGasLimit(uint64(_data.length)), maxResourceLimit - cachedPrevBoughtGas));
-        // require(_gasLimit >= minimumGasLimit(uint64(_data.length)), "OptimismPortal: gas limit too small");
-
-        // require(
-        //     int256(uint256(params.prevBoughtGas)) <= int256(uint256(config.maxResourceLimit)),
-        //     "ResourceMetering: cannot buy more gas than available gas limit"
-        // );
-
-
         vm.assume(_data.length <= 120_000);
-
-
-
-        // int256(uint256(config.maxResourceLimit))
-
-
 
         try portal.depositTransaction{ value: value }(_to, value, gasLimit, _isCreation, _data) {
             // Do nothing; Call succeeded
-            // failedToComplete = false;
         } catch {
             failedToComplete = true;
         }
-
     }
-
 
 }
 
