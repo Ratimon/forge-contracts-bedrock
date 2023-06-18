@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {StdUtils} from "@forge-std/StdUtils.sol";
+import {Vm} from "@forge-std/Vm.sol";
+// import {console } from "@forge-std/console.sol";
+
+
+// import {SystemConfig} from "@main/L1/SystemConfig.sol";
 import {OptimismPortal} from "@main/L1/OptimismPortal.sol";
 import {L2OutputOracle} from "@main/L1/L2OutputOracle.sol";
 import {AddressAliasHelper} from "@main/vendor/AddressAliasHelper.sol";
@@ -11,28 +17,131 @@ import {Constants} from "@main/libraries/Constants.sol";
 import {Portal_Initializer} from "@test/CommonTest.t.sol";
 import {Types} from "@main/libraries/Types.sol";
 
-contract OptimismPortal_Depositor {
+contract OptimismPortal_Depositor is StdUtils, ResourceMetering {
+    Vm internal vm;
     OptimismPortal internal portal;
     bool public failedToComplete;
 
-    constructor(OptimismPortal _portal) {
+    constructor(Vm _vm, OptimismPortal _portal) {
+        vm = _vm;
         portal = _portal;
+        initialize();
+    }
+
+
+    function initialize() internal initializer {
+        __ResourceMetering_init();
+    }
+
+    function resourceConfig() public pure returns (ResourceMetering.ResourceConfig memory) {
+        return _resourceConfig();
+    }
+
+    function _resourceConfig() internal pure override returns (ResourceMetering.ResourceConfig memory) {
+        ResourceMetering.ResourceConfig memory rcfg = Constants.DEFAULT_RESOURCE_CONFIG();
+        return rcfg;
     }
 
     // A test intended to identify any unexpected halting conditions
     function depositTransactionCompletes(
         address _to,
-        uint256 _mint,
+        // uint256 _mint,
         uint256 _value,
         uint64 _gasLimit,
         bool _isCreation,
         bytes memory _data
     ) public payable {
-        failedToComplete = true;
+        // failedToComplete = true;
+        // require(!_isCreation || _to == address(0), "OptimismPortal_Depositor: invalid test case.");
+        // portal.depositTransaction{value: _mint}(_to, _value, _gasLimit, _isCreation, _data);
+        // failedToComplete = false;
+
+        
+        // function _resourceConfig() internal view override returns (ResourceMetering.ResourceConfig memory) {
+        //     return SYSTEM_CONFIG.resourceConfig();
+        // }
+    
+
+        // failedToComplete = true;
+
+        vm.assume(_isCreation == false || _to == address(0));
         require(!_isCreation || _to == address(0), "OptimismPortal_Depositor: invalid test case.");
-        portal.depositTransaction{value: _mint}(_to, _value, _gasLimit, _isCreation, _data);
-        failedToComplete = false;
+
+        uint256 preDepositvalue = bound(_value, 0, type(uint128).max);
+        // Give the depositor some ether
+        vm.deal(address(this), preDepositvalue);
+        // cache the contract's eth balance
+        uint256 preDepositBalance = address(this).balance;
+
+        uint256 value = bound(preDepositvalue, 0, preDepositBalance);
+
+        // _resourceConfig
+        // struct ResourceParams {
+        //     uint128 prevBaseFee;
+        //     uint64 prevBoughtGas;
+        //     uint64 prevBlockNum;
+        // }
+    
+
+        // ResourceMetering.ResourceConfig memory rcfg = resourceConfig();
+        // ResourceMetering.ResourceParams memory rcfg =  ResourceMetering(address(portal)).params;
+    //    (,uint64 cachedPrevBoughtGas, uint64 cachedPrevBlockNum) =  ResourceMetering(address(portal)).params();
+       (,uint64 cachedPrevBoughtGas,) =  ResourceMetering(address(portal)).params();
+
+
+        // uint256 targetResourceLimit = uint256(rcfg.maxResourceLimit);
+
+        // uint256 blockDiff = block.number - rcfg.prevBlockNum;
+        // uint256 blockDiff = block.number - cachedPrevBlockNum;
+
+        // uint64 prevBoughtGas;
+
+
+        // if (blockDiff > 0) {
+        //     // prevBoughtGas =  rcfg.prevBoughtGas;
+        //     prevBoughtGas =  cachedPrevBoughtGas;
+
+        //     // params.prevBoughtGas = 0;
+        //     // params.prevBlockNum = uint64(block.number);
+        // }
+
+        // prevBoughtGas = 0;
+
+        // console.log('cachedPrevBoughtGas', cachedPrevBoughtGas);
+        // console.log('cachedPrevBlockNum', cachedPrevBlockNum);
+        // console.log('block.number', block.number);
+
+        ResourceMetering.ResourceConfig memory rcfg = resourceConfig();
+        uint256 maxResourceLimit = uint64(rcfg.maxResourceLimit);
+
+
+        uint64 gasLimit = uint64(bound(_gasLimit, portal.minimumGasLimit(uint64(_data.length)), maxResourceLimit - cachedPrevBoughtGas));
+        // require(_gasLimit >= minimumGasLimit(uint64(_data.length)), "OptimismPortal: gas limit too small");
+
+        // require(
+        //     int256(uint256(params.prevBoughtGas)) <= int256(uint256(config.maxResourceLimit)),
+        //     "ResourceMetering: cannot buy more gas than available gas limit"
+        // );
+
+
+        vm.assume(_data.length <= 120_000);
+
+
+
+        // int256(uint256(config.maxResourceLimit))
+
+
+
+        try portal.depositTransaction{ value: value }(_to, value, gasLimit, _isCreation, _data) {
+            // Do nothing; Call succeeded
+            // failedToComplete = false;
+        } catch {
+            failedToComplete = true;
+        }
+
     }
+
+
 }
 
 contract OptimismPortal_Invariant_Harness is Portal_Initializer {
@@ -91,7 +200,7 @@ contract OptimismPortal_Deposit_Invariant is Portal_Initializer {
     function setUp() public override {
         super.setUp();
         // Create a deposit actor.
-        actor = new OptimismPortal_Depositor(op);
+        actor = new OptimismPortal_Depositor(vm,op);
 
         targetContract(address(actor));
 
