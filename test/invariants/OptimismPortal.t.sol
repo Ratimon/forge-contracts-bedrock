@@ -48,8 +48,7 @@ contract OptimismPortal_Depositor is StdUtils, ResourceMetering {
     ) public payable {
         failedToComplete = false;
 
-        vm.assume(_isCreation == false || _to == address(0));
-        require(!_isCreation || _to == address(0), "OptimismPortal_Depositor: invalid test case.");
+        vm.assume((!_isCreation || _to == address(0)) && _data.length <= 120_000);
 
         uint256 preDepositvalue = bound(_value, 0, type(uint128).max);
         // Give the depositor some ether
@@ -62,7 +61,6 @@ contract OptimismPortal_Depositor is StdUtils, ResourceMetering {
         ResourceMetering.ResourceConfig memory rcfg = resourceConfig();
         uint256 maxResourceLimit = uint64(rcfg.maxResourceLimit);
         uint64 gasLimit = uint64(bound(_gasLimit, portal.minimumGasLimit(uint64(_data.length)), maxResourceLimit - cachedPrevBoughtGas));
-        vm.assume(_data.length <= 120_000);
 
         try portal.depositTransaction{ value: value }(_to, value, gasLimit, _isCreation, _data) {
             // Do nothing; Call succeeded
