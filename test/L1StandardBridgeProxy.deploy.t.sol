@@ -30,7 +30,7 @@ contract L1StandardBridgeProxy_Test is Test {
     }
 
     function test_owner_succeeds() external {
-        address owner =  vm.envAddress("DEPLOYER");
+        address owner = vm.envAddress("DEPLOYER");
 
         vm.prank(owner);
 

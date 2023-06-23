@@ -15,10 +15,6 @@ contract DeployOptimismPortalProxyScript is DeployScript {
     function deploy() external returns (Proxy) {
         proxyAdmin = ProxyAdmin(deployer.getAddress("ProxyAdmin"));
 
-        return Proxy(
-            deployer.deploy_Proxy(
-                "OptimismPortalProxy", address(proxyAdmin)
-            )
-        );
+        return Proxy(deployer.deploy_Proxy("OptimismPortalProxy", address(proxyAdmin)));
     }
 }

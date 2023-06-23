@@ -56,19 +56,20 @@ contract OptimismPortal_Depositor is StdUtils, ResourceMetering {
         // cache the contract's eth balance
         uint256 preDepositBalance = address(this).balance;
         uint256 value = bound(preDepositvalue, 0, preDepositBalance);
-       (,uint64 cachedPrevBoughtGas,) =  ResourceMetering(address(portal)).params();
+        (, uint64 cachedPrevBoughtGas,) = ResourceMetering(address(portal)).params();
 
         ResourceMetering.ResourceConfig memory rcfg = resourceConfig();
         uint256 maxResourceLimit = uint64(rcfg.maxResourceLimit);
-        uint64 gasLimit = uint64(bound(_gasLimit, portal.minimumGasLimit(uint64(_data.length)), maxResourceLimit - cachedPrevBoughtGas));
+        uint64 gasLimit = uint64(
+            bound(_gasLimit, portal.minimumGasLimit(uint64(_data.length)), maxResourceLimit - cachedPrevBoughtGas)
+        );
 
-        try portal.depositTransaction{ value: value }(_to, value, gasLimit, _isCreation, _data) {
+        try portal.depositTransaction{value: value}(_to, value, gasLimit, _isCreation, _data) {
             // Do nothing; Call succeeded
         } catch {
             failedToComplete = true;
         }
     }
-
 }
 
 contract OptimismPortal_Invariant_Harness is Portal_Initializer {
