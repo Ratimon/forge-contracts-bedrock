@@ -15,7 +15,7 @@
     "set-defaults": "^0.0.1"
   },
   "scripts": {
-    "prepare": "set-defaults .vscode && forge install --no-git foundry-rs/forge-std@v1.5.5 openzeppelin/openzeppelin-contracts@v4.8.3 openzeppelin/openzeppelin-contracts-upgradeable@v4.8.3 transmissions11/solmate@v6 || echo ''",
+    "prepare": "set-defaults .vscode && forge install --no-git foundry-rs/forge-std@v1.5.6 openzeppelin/openzeppelin-contracts@v4.9.2 openzeppelin/openzeppelin-contracts-upgradeable@v4.8.3 transmissions11/solmate@v6 || echo ''",
     "start": "zellij --layout zellij.kdl a template-foundry || zellij --layout zellij.kdl -s template-foundry",
     "stop": "zellij kill-session template-foundry",
     "start:wezterm": "wezterm --config-file wezterm.lua",
@@ -24,7 +24,7 @@
     "build:differential": "(cd test/differential-testing && go build -o differential-testing main.go)",
     "build:fuzz": "(cd test/test-case-generator && go build ./cmd/fuzz.go)",
     "clean": "rm -rf ./differential-testing/differential-testing ./test-case-generator/fuzz",
-    "export": "forge-deploy export",
+    "export": "forge-deploy export localhost contracts.json",
     "deployments:sync": "forge-deploy sync",
     "forge-deploy": "forge-deploy",
     "test": "pnpm gen-deployer && forge test --ffi",
