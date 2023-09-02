@@ -57,12 +57,12 @@ pnpm watch_compile
   ```bash
   pnpm run deploy <network>
   ```
-  
+
 ### export your contracts (abi+address):
-  
-  ```bash
-  pnpm export localhost contracts.json
-  ```
+
+```bash
+pnpm export localhost contracts.json
+```
 
 ### execute script on the deployed contract
 
@@ -167,4 +167,14 @@ With that you can do the following to get started:
 
 ```bash
 pnpm start:wezterm
+```
+
+## Quickstart
+
+```sh
+pnpm start
+```
+
+```sh
+pnpm run deploy
 ```
